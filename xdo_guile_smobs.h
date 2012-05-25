@@ -134,39 +134,39 @@ print_charcodemap(SCM ccm_smob, SCM port, scm_print_state *pstate)
     return 1;
 }
 
-static scm_t_bits mouselocation_tag;
-typedef struct mouselocation
+static scm_t_bits mouse_location_tag;
+typedef struct mouse_location
 {
     int x, y, screen;
     SCM window;
-} mouselocation_t;
+} mouse_location_t;
 
 SCM
-make_mouselocation(int x, int y, int screen, Window window)
+make_mouse_location(int x, int y, int screen, Window window)
 {
     SCM smob;
-    mouselocation_t *ml = (mouselocation_t *)scm_gc_malloc(sizeof(mouselocation_t), "mouselocation");
+    mouse_location_t *ml = (mouse_location_t *)scm_gc_malloc(sizeof(mouse_location_t), "mouse-location");
     ml->x = x;
     ml->y = y;
     ml->screen = screen;
     ml->window = wrap_xdo_window(window);
-    SCM_NEWSMOB(smob, mouselocation_tag, ml);
+    SCM_NEWSMOB(smob, mouse_location_tag, ml);
     return smob;
 }
 
 static SCM
-mark_mouselocation(SCM ml_smob)
+mark_mouse_location(SCM ml_smob)
 {
-    mouselocation_t *ml = (mouselocation_t *)SCM_SMOB_DATA(ml_smob);
+    mouse_location_t *ml = (mouse_location_t *)SCM_SMOB_DATA(ml_smob);
     scm_gc_mark(ml->window);
     return SCM_BOOL_F;
 }
 
 static int
-print_mouselocation(SCM ml_smob, SCM port, scm_print_state *pstate)
+print_mouse_location(SCM ml_smob, SCM port, scm_print_state *pstate)
 {
-    mouselocation_t *data = (mouselocation_t *)SCM_SMOB_DATA(ml_smob);
-    scm_puts("#<mouselocation (", port);
+    mouse_location_t *data = (mouse_location_t *)SCM_SMOB_DATA(ml_smob);
+    scm_puts("#<mouse-location (", port);
     scm_display(scm_from_int(data->x), port);
     scm_puts(", ", port);
     scm_display(scm_from_int(data->y), port);
@@ -183,30 +183,30 @@ print_mouselocation(SCM ml_smob, SCM port, scm_print_state *pstate)
 }
 
 SCM
-get_mouselocation_x(SCM mouselocation_smob)
+get_mouse_location_x(SCM mouse_location_smob)
 {
-    mouselocation_t *ml = (mouselocation_t *)SCM_SMOB_DATA(mouselocation_smob);
+    mouse_location_t *ml = (mouse_location_t *)SCM_SMOB_DATA(mouse_location_smob);
     return scm_from_int(ml->x);
 }
 
 SCM
-get_mouselocation_y(SCM mouselocation_smob)
+get_mouse_location_y(SCM mouse_location_smob)
 {
-    mouselocation_t *ml = (mouselocation_t *)SCM_SMOB_DATA(mouselocation_smob);
+    mouse_location_t *ml = (mouse_location_t *)SCM_SMOB_DATA(mouse_location_smob);
     return scm_from_int(ml->y);
 }
 
 SCM
-get_mouselocation_screen(SCM mouselocation_smob)
+get_mouse_location_screen(SCM mouse_location_smob)
 {
-    mouselocation_t *ml = (mouselocation_t *)SCM_SMOB_DATA(mouselocation_smob);
+    mouse_location_t *ml = (mouse_location_t *)SCM_SMOB_DATA(mouse_location_smob);
     return scm_from_int(ml->screen);
 }
 
 SCM
-get_mouselocation_window(SCM mouselocation_smob)
+get_mouse_location_window(SCM mouse_location_smob)
 {
-    mouselocation_t *ml = (mouselocation_t *)SCM_SMOB_DATA(mouselocation_smob);
+    mouse_location_t *ml = (mouse_location_t *)SCM_SMOB_DATA(mouse_location_smob);
     return ml->window;
 }
 
@@ -294,7 +294,7 @@ free_xdo_search(SCM smob)
     return 0;
 }
 
-#define EXPORT_SMOB_FUNCTIONS "mouselocation-x",\
+#define EXPORT_SMOB_FUNCTIONS "mouse-location-x",\
                               "mouselocation-y",\
                               "mouselocation-screen",\
                               "mouselocation-window",\
@@ -321,13 +321,13 @@ void setup_smobs()
     scm_c_define_gsubr("charcodemap-modmask", 1, 0, 0, get_charcodemap_modmask);
     scm_c_define_gsubr("charcodemap-needs-binding", 1, 0, 0, get_charcodemap_needs_binding);
 
-    mouselocation_tag = scm_make_smob_type("mouselocation", sizeof(mouselocation_t));
-    scm_set_smob_print(mouselocation_tag, print_mouselocation);
-    scm_set_smob_mark(mouselocation_tag, mark_mouselocation);
-    scm_c_define_gsubr("mouselocation-x", 1, 0, 0, get_mouselocation_x);
-    scm_c_define_gsubr("mouselocation-y", 1, 0, 0, get_mouselocation_y);
-    scm_c_define_gsubr("mouselocation-screen", 1, 0, 0, get_mouselocation_screen);
-    scm_c_define_gsubr("mouselocation-window", 1, 0, 0, get_mouselocation_window);
+    mouse_location_tag = scm_make_smob_type("mouse-location", sizeof(mouse_location_t));
+    scm_set_smob_print(mouse_location_tag, print_mouse_location);
+    scm_set_smob_mark(mouse_location_tag, mark_mouse_location);
+    scm_c_define_gsubr("mouse-location-x", 1, 0, 0, get_mouse_location_x);
+    scm_c_define_gsubr("mouse-location-y", 1, 0, 0, get_mouse_location_y);
+    scm_c_define_gsubr("mouse-location-screen", 1, 0, 0, get_mouse_location_screen);
+    scm_c_define_gsubr("mouse-location-window", 1, 0, 0, get_mouse_location_window);
 
     xdo_search_tag = scm_make_smob_type("xdo_search", sizeof(xdo_search_t));
     scm_set_smob_free(xdo_search_tag, free_xdo_search);

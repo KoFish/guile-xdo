@@ -87,7 +87,7 @@ xdo_get_mouse_location_wrapper(SCM xdo, SCM with_window)
     {
         xdo_get_mouse_location(SCM_POINTER_VALUE(xdo), &x, &y, &screen);
     }
-    return make_get_mouse_location(x, y, screen, window);
+    return make_mouse_location(x, y, screen, window);
 }
 
 SCM
@@ -182,16 +182,16 @@ xdo_move_window_wrapper(SCM xdo, SCM window, SCM x, SCM y)
 SCM
 xdo_translate_window_with_sizehint_wrapper(SCM xdo, SCM window, SCM width, SCM height)
 {
-    int new_width, new_height, ret;
+    unsigned int new_width, new_height, ret;
     assert_xdo_window(window);
     ret = xdo_translate_window_with_sizehint(SCM_POINTER_VALUE(xdo),
             SCM_SMOB_DATA(window),
-            scm_to_int(width),
-            scm_to_int(height),
+            scm_to_uint(width),
+            scm_to_uint(height),
             &new_width, &new_height);
     if (ret)
     {
-        return scm_cons(scm_from_int(new_width), scm_cons(scm_from_int(new_height), SCM_EOL));
+        return scm_cons(scm_from_uint(new_width), scm_cons(scm_from_uint(new_height), SCM_EOL));
     }
     else
     {
@@ -372,10 +372,10 @@ xdo_get_active_window_wrapper(SCM xdo)
 }
 
 SCM
-xdo_select_window_with_click_window_wrapper ( SCM xdo)
+xdo_select_window_with_click_wrapper ( SCM xdo)
 {
     Window w;
-    xdo_select_window_with_click_window(SCM_POINTER_VALUE(xdo), &w);
+    xdo_select_window_with_click(SCM_POINTER_VALUE(xdo), &w);
     return wrap_xdo_window(w);
 }
 
@@ -427,14 +427,11 @@ xdo_get_desktop_for_window_wrapper ( SCM xdo, SCM wid)
 SCM xdo_search_windows_wrapper ( SCM xdo,  SCM search)
 {
     Window *win_lst;
-    int length, i;
+    unsigned int length, i;
     SCM lst = SCM_EOL;
-    xdo_search_windows_POINTER_VALUE(xdo), unwrap_xdo_search(search), &win_lst, &length);
-    for (i = length ;
-i != 0 ;
-i--)
-{
-    lst = scm_cons(wrap_xdo_window(win_lst[i-1]), lst);
+    xdo_search_windows(SCM_POINTER_VALUE(xdo), unwrap_xdo_search(search), &win_lst, &length);
+    for (i = length ; i != 0 ; i--) {
+        lst = scm_cons(wrap_xdo_window(win_lst[i-1]), lst);
     }
     free(win_lst);
     return lst;
@@ -478,7 +475,7 @@ SCM xdo_get_active_modifiers_wrapper ( SCM xdo)
     charcodemap_t *keys;
     int i,nkeys;
     SCM lst = SCM_EOL;
-    xdo_active_keys_to_keycode_list(SCM_POINTER_VALUE(xdo), &keys, &nkeys);
+    xdo_get_active_modifiers(SCM_POINTER_VALUE(xdo), &keys, &nkeys);
     for (i = 0 ; i < nkeys ; i++)
     {
         lst = scm_cons(make_charcodemap(keys[i]), lst);
@@ -494,23 +491,23 @@ SCM xdo_clear_active_modifiers_wrapper ( SCM xdo, SCM window, SCM active_mods)
     assert_xdo_window(window);
     if (scm_pair_p(active_mods))
     {
-        xdo_active_mods_t mods;
-        mods.nkeymods = scm_to_int(scm_length(active_mods));
-        mods.keymods = (charcodemap_t *)malloc(sizeof(charcodemap_t)*mods.nkeymods);
+        charcodemap_t *mods;
+        int n_mods = scm_to_int(scm_length(active_mods));
+        mods = (charcodemap_t *)malloc(sizeof(charcodemap_t)*n_mods);
         head = scm_car(active_mods);
         tail = scm_cdr(active_mods);
         do
         {
             charcodemap_t *cm = (charcodemap_t *)SCM_SMOB_DATA(head);
-            memcpy(&mods.keymods[i++], cm, sizeof(charcodemap_t));
+            memcpy(&mods[i++], cm, sizeof(charcodemap_t));
 
             if (tail == SCM_EOL) break;
             head = scm_car(tail);
             tail = scm_cdr(tail);
         }
-        while(i < mods.nkeymods);
-        ret = xdo_clear_active_modifiers(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &mods);
-        free(mods.keymods);
+        while(i < n_mods);
+        ret = xdo_clear_active_modifiers(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), mods, n_mods);
+        free(mods);
     }
     else
     {
@@ -527,23 +524,23 @@ SCM xdo_set_active_modifiers_wrapper ( SCM xdo, SCM window,  SCM active_mods)
     assert_xdo_window(window);
     if (scm_pair_p(active_mods))
     {
-        xdo_active_mods_t mods;
-        mods.nkeymods = scm_to_int(scm_length(active_mods));
-        mods.keymods = (charcodemap_t *)malloc(sizeof(charcodemap_t)*mods.nkeymods);
+        charcodemap_t *mods;
+        int n_mods = scm_to_int(scm_length(active_mods));
+        mods = (charcodemap_t *)malloc(sizeof(charcodemap_t)*n_mods);
         head = scm_car(active_mods);
         tail = scm_cdr(active_mods);
         do
         {
             charcodemap_t *cm = (charcodemap_t *)SCM_SMOB_DATA(head);
-            memcpy(&mods.keymods[i++], cm, sizeof(charcodemap_t));
+            memcpy(&mods[i++], cm, sizeof(charcodemap_t));
 
             if (tail == SCM_EOL) break;
             head = scm_car(tail);
             tail = scm_cdr(tail);
         }
-        while(i < mods.nkeymods);
-        ret=xdo_set_active_modifiers(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &mods);
-        free(mods.keymods);
+        while(i < n_mods);
+        ret=xdo_set_active_modifiers(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), mods, n_mods);
+        free(mods);
     }
     else
     {
@@ -571,7 +568,7 @@ SCM
 xdo_kill_window_wrapper ( SCM xdo, SCM window)
 {
     assert_xdo_window(window);
-    return scm_from_int(xdo_kill_window_POINTER_VALUE(xdo), SCM_SMOB_DATA(window)));
+    return scm_from_int(xdo_kill_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window)));
 }
 
 SCM
@@ -580,7 +577,7 @@ xdo_find_window_client_wrapper ( SCM xdo, SCM window, SCM direction)
     Window c;
     int dir = (direction == SCM_UNDEFINED ? 0 : scm_to_int(direction));
     assert_xdo_window(window);
-    xdo_find_window_client_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &c, dir);
+    xdo_find_window_client(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &c, dir);
     return wrap_xdo_window(c);
 }
 
@@ -660,7 +657,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("xdo-get-window-location", 2, 0, 0, xdo_get_window_location_wrapper);
     scm_c_define_gsubr("xdo-get-window-size", 2, 0, 0, xdo_get_window_size_wrapper);
     scm_c_define_gsubr("xdo-get-active-window", 1, 0, 0, xdo_get_active_window_wrapper);
-    scm_c_define_gsubr("xdo-select-window-with-click", 1, 0, 0, xdo_select_window_with_click_window_wrapper);
+    scm_c_define_gsubr("xdo-select-window-with-click", 1, 0, 0, xdo_select_window_with_click_wrapper);
     scm_c_define_gsubr("xdo-set-number-of-desktops", 2, 0, 0, xdo_set_number_of_desktops_wrapper);
     scm_c_define_gsubr("xdo-get-number-of-desktops", 1, 0, 0, xdo_get_number_of_desktops_wrapper);
     scm_c_define_gsubr("xdo-set-current-desktop", 2, 0, 0, xdo_set_current_desktop_wrapper);
