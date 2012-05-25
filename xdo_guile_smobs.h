@@ -295,9 +295,9 @@ free_xdo_search(SCM smob)
 }
 
 #define EXPORT_SMOB_FUNCTIONS "mouse-location-x",\
-                              "mouselocation-y",\
-                              "mouselocation-screen",\
-                              "mouselocation-window",\
+                              "mouse-location-y",\
+                              "mouse-location-screen",\
+                              "mouse-location-window",\
                               "charcodemap-key",\
                               "charcodemap-code",\
                               "charcodemap-symbol",\
