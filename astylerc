@@ -1,0 +1,7 @@
+style=ansi
+indent=spaces=4
+convert-tabs
+brackets=break
+align-pointer=name
+align-reference=name
+lineend=linux
