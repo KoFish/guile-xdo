@@ -688,6 +688,7 @@ init_xdo_libxdo(void *unused)
         "xdo-search-windows",
         "xdo-get-window-property",
         "xdo-get-input-state",
+        /*"xdo-keysym-charmap",*/
         "xdo-get-symbol-map",
         "xdo-get-active-modifiers",
         "xdo-clear-active-modifiers",
