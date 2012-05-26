@@ -11,8 +11,7 @@ void xdo_free_pointer(void *xdo)
     xdo_free((xdo_t *)xdo);
 }
 
-SCM
-xdo_new_wrapper(SCM disp)
+SCM xdo_new_wrapper(SCM disp)
 {
     if (disp == SCM_UNDEFINED)
     {
@@ -23,14 +22,12 @@ xdo_new_wrapper(SCM disp)
         return scm_from_pointer(xdo_new(scm_to_locale_string(disp)), xdo_free_pointer);
 }
 
-SCM
-xdo_version_wrapper()
+SCM xdo_version_wrapper()
 {
     return scm_from_locale_string(xdo_version());
 }
 
-SCM
-xdo_move_mouse_wrapper(SCM xdo, SCM x, SCM y, SCM screen)
+SCM xdo_move_mouse_wrapper(SCM xdo, SCM x, SCM y, SCM screen)
 {
     return scm_from_int(xdo_move_mouse(SCM_POINTER_VALUE(xdo),
                                        scm_to_int(x),
@@ -38,8 +35,7 @@ xdo_move_mouse_wrapper(SCM xdo, SCM x, SCM y, SCM screen)
                                        scm_to_int(screen)));
 }
 
-SCM
-xdo_move_mouse_rel_to_win_wrapper(SCM xdo, SCM window, SCM x, SCM y)
+SCM xdo_move_mouse_rel_to_win_wrapper(SCM xdo, SCM window, SCM x, SCM y)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_move_mouse_relative_to_window(SCM_POINTER_VALUE(xdo),
@@ -48,16 +44,14 @@ xdo_move_mouse_rel_to_win_wrapper(SCM xdo, SCM window, SCM x, SCM y)
                         scm_to_int(y)));
 }
 
-SCM
-xdo_move_mouse_rel_wrapper(SCM xdo, SCM x, SCM y)
+SCM xdo_move_mouse_rel_wrapper(SCM xdo, SCM x, SCM y)
 {
     return scm_from_int(xdo_move_mouse_relative(SCM_POINTER_VALUE(xdo),
                         scm_to_int(x),
                         scm_to_int(y)));
 }
 
-SCM
-xdo_mouse_down_wrapper(SCM xdo, SCM window, SCM button)
+SCM xdo_mouse_down_wrapper(SCM xdo, SCM window, SCM button)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_mouse_down(SCM_POINTER_VALUE(xdo),
@@ -65,8 +59,7 @@ xdo_mouse_down_wrapper(SCM xdo, SCM window, SCM button)
                                        scm_to_int(button)));
 }
 
-SCM
-xdo_mouse_up_wrapper(SCM xdo, SCM window, SCM button)
+SCM xdo_mouse_up_wrapper(SCM xdo, SCM window, SCM button)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_mouse_up(SCM_POINTER_VALUE(xdo),
@@ -74,8 +67,7 @@ xdo_mouse_up_wrapper(SCM xdo, SCM window, SCM button)
                                      scm_to_int(button)));
 }
 
-SCM
-xdo_get_mouse_location_wrapper(SCM xdo, SCM with_window)
+SCM xdo_get_mouse_location_wrapper(SCM xdo, SCM with_window)
 {
     int x, y, screen;
     Window window = -1;
@@ -90,8 +82,7 @@ xdo_get_mouse_location_wrapper(SCM xdo, SCM with_window)
     return make_mouse_location(x, y, screen, window);
 }
 
-SCM
-xdo_wait_for_mouse_move_wrapper(SCM xdo, SCM x, SCM y, SCM to)
+SCM xdo_wait_for_mouse_move_wrapper(SCM xdo, SCM x, SCM y, SCM to)
 {
     if ((to != SCM_UNDEFINED) && (scm_is_true(to)))
     {
@@ -103,8 +94,7 @@ xdo_wait_for_mouse_move_wrapper(SCM xdo, SCM x, SCM y, SCM to)
     }
 }
 
-SCM
-xdo_click_window_wrapper(SCM xdo, SCM window, SCM button, SCM repeat, SCM delay)
+SCM xdo_click_window_wrapper(SCM xdo, SCM window, SCM button, SCM repeat, SCM delay)
 {
     assert_xdo_window(window);
     if (repeat != SCM_UNDEFINED)
@@ -126,8 +116,7 @@ xdo_click_window_wrapper(SCM xdo, SCM window, SCM button, SCM repeat, SCM delay)
     }
 }
 
-SCM
-xdo_enter_text_window_wrapper(SCM xdo, SCM window, SCM string, SCM delay)
+SCM xdo_enter_text_window_wrapper(SCM xdo, SCM window, SCM string, SCM delay)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_enter_text_window(SCM_POINTER_VALUE(xdo),
@@ -136,8 +125,7 @@ xdo_enter_text_window_wrapper(SCM xdo, SCM window, SCM string, SCM delay)
                         (delay == SCM_UNDEFINED ?  1000 : scm_to_uint32(delay))));
 }
 
-SCM
-xdo_send_keysequence_window_wrapper(SCM xdo, SCM window, SCM keysequence, SCM delay, SCM mode)
+SCM xdo_send_keysequence_window_wrapper(SCM xdo, SCM window, SCM keysequence, SCM delay, SCM mode)
 {
     useconds_t d = 1000;
     assert_xdo_window(window);
@@ -169,8 +157,7 @@ xdo_send_keysequence_window_wrapper(SCM xdo, SCM window, SCM keysequence, SCM de
                         d));
 }
 
-SCM
-xdo_move_window_wrapper(SCM xdo, SCM window, SCM x, SCM y)
+SCM xdo_move_window_wrapper(SCM xdo, SCM window, SCM x, SCM y)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_move_window(SCM_POINTER_VALUE(xdo),
@@ -179,8 +166,7 @@ xdo_move_window_wrapper(SCM xdo, SCM window, SCM x, SCM y)
                                         scm_to_int(y)));
 }
 
-SCM
-xdo_translate_window_with_sizehint_wrapper(SCM xdo, SCM window, SCM width, SCM height)
+SCM xdo_translate_window_with_sizehint_wrapper(SCM xdo, SCM window, SCM width, SCM height)
 {
     unsigned int new_width, new_height, ret;
     assert_xdo_window(window);
@@ -199,8 +185,7 @@ xdo_translate_window_with_sizehint_wrapper(SCM xdo, SCM window, SCM width, SCM h
     }
 }
 
-SCM
-xdo_set_window_size_wrapper(SCM xdo, SCM window, SCM width, SCM height, SCM flags)
+SCM xdo_set_window_size_wrapper(SCM xdo, SCM window, SCM width, SCM height, SCM flags)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_set_window_size(SCM_POINTER_VALUE(xdo),
@@ -210,8 +195,7 @@ xdo_set_window_size_wrapper(SCM xdo, SCM window, SCM width, SCM height, SCM flag
                                             scm_to_int(flags)));
 }
 
-SCM
-xdo_set_window_property_wrapper (SCM xdo, SCM wid, SCM property, SCM value)
+SCM xdo_set_window_property_wrapper (SCM xdo, SCM wid, SCM property, SCM value)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_set_window_property(SCM_POINTER_VALUE(xdo),
@@ -220,8 +204,7 @@ xdo_set_window_property_wrapper (SCM xdo, SCM wid, SCM property, SCM value)
                         scm_to_locale_string(value)));
 }
 
-SCM
-xdo_set_window_class_wrapper (SCM xdo, SCM wid, SCM name, SCM class)
+SCM xdo_set_window_class_wrapper (SCM xdo, SCM wid, SCM name, SCM class)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_set_window_class(SCM_POINTER_VALUE(xdo),
@@ -230,8 +213,7 @@ xdo_set_window_class_wrapper (SCM xdo, SCM wid, SCM name, SCM class)
                         scm_to_locale_string(class)));
 }
 
-SCM
-xdo_set_window_urgency_wrapper (SCM xdo, SCM wid, SCM urgency)
+SCM xdo_set_window_urgency_wrapper (SCM xdo, SCM wid, SCM urgency)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_set_window_urgency(SCM_POINTER_VALUE(xdo),
@@ -239,8 +221,7 @@ xdo_set_window_urgency_wrapper (SCM xdo, SCM wid, SCM urgency)
                         scm_to_int(urgency)));
 }
 
-SCM
-xdo_set_window_override_redirect_wrapper (SCM xdo, SCM wid, SCM override_redirect)
+SCM xdo_set_window_override_redirect_wrapper (SCM xdo, SCM wid, SCM override_redirect)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_set_window_override_redirect(SCM_POINTER_VALUE(xdo),
@@ -248,32 +229,28 @@ xdo_set_window_override_redirect_wrapper (SCM xdo, SCM wid, SCM override_redirec
                         scm_to_int(override_redirect)));
 }
 
-SCM
-xdo_focus_window_wrapper (SCM xdo, SCM wid)
+SCM xdo_focus_window_wrapper (SCM xdo, SCM wid)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_focus_window(SCM_POINTER_VALUE(xdo),
                                          SCM_SMOB_DATA(wid)));
 }
 
-SCM
-xdo_raise_window_wrapper (SCM xdo, SCM wid)
+SCM xdo_raise_window_wrapper (SCM xdo, SCM wid)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_raise_window(SCM_POINTER_VALUE(xdo),
                                          SCM_SMOB_DATA(wid)));
 }
 
-SCM
-xdo_get_focused_window_wrapper (SCM xdo)
+SCM xdo_get_focused_window_wrapper (SCM xdo)
 {
     Window w;
     xdo_get_focused_window(SCM_POINTER_VALUE(xdo), &w);
     return wrap_xdo_window(w);
 }
 
-SCM
-xdo_wait_for_window_focus_wrapper (SCM xdo, SCM window, SCM want_focus)
+SCM xdo_wait_for_window_focus_wrapper (SCM xdo, SCM window, SCM want_focus)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_wait_for_window_focus(SCM_POINTER_VALUE(xdo),
@@ -281,63 +258,55 @@ xdo_wait_for_window_focus_wrapper (SCM xdo, SCM window, SCM want_focus)
                         scm_to_int(want_focus)));
 }
 
-SCM
-xdo_get_pid_window_wrapper (SCM xdo, SCM window)
+SCM xdo_get_pid_window_wrapper (SCM xdo, SCM window)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_get_pid_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window)));
 }
 
-SCM
-xdo_get_focused_window_sane_wrapper (SCM xdo)
+SCM xdo_get_focused_window_sane_wrapper (SCM xdo)
 {
     Window w;
     xdo_get_focused_window_sane(SCM_POINTER_VALUE(xdo), &w);
     return wrap_xdo_window(w);
 }
 
-SCM
-xdo_activate_window_wrapper (SCM xdo, SCM wid)
+SCM xdo_activate_window_wrapper (SCM xdo, SCM wid)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_activate_window(SCM_POINTER_VALUE(xdo),
                                             SCM_SMOB_DATA(wid)));
 }
 
-SCM
-xdo_wait_for_window_active_wrapper (SCM xdo, SCM window, SCM active)
+SCM xdo_wait_for_window_active_wrapper (SCM xdo, SCM window, SCM active)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_wait_for_window_active(SCM_POINTER_VALUE(xdo),
                         SCM_SMOB_DATA(window), scm_to_int(active)));
 }
 
-SCM
-xdo_map_window_wrapper (SCM xdo, SCM wid)
+SCM xdo_map_window_wrapper (SCM xdo, SCM wid)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_map_window(SCM_POINTER_VALUE(xdo),
                                        SCM_SMOB_DATA(wid)));
 }
 
-SCM
-xdo_unmap_window_wrapper (SCM xdo, SCM wid)
+SCM xdo_unmap_window_wrapper (SCM xdo, SCM wid)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_unmap_window(SCM_POINTER_VALUE(xdo),
                                          SCM_SMOB_DATA(wid)));
 }
 
-SCM
-xdo_minimize_window_wrapper (SCM xdo, SCM wid)
+SCM xdo_minimize_window_wrapper (SCM xdo, SCM wid)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_minimize_window(SCM_POINTER_VALUE(xdo),
                                             SCM_SMOB_DATA(wid)));
 }
 
-SCM
-xdo_reparent_window_wrapper (SCM xdo, SCM wid_source, SCM wid_target)
+SCM xdo_reparent_window_wrapper (SCM xdo, SCM wid_source, SCM wid_target)
 {
     assert_xdo_window(wid_source);
     assert_xdo_window(wid_target);
@@ -345,8 +314,7 @@ xdo_reparent_window_wrapper (SCM xdo, SCM wid_source, SCM wid_target)
                                             SCM_SMOB_DATA(wid_source), SCM_SMOB_DATA(wid_target)));
 }
 
-SCM
-xdo_get_window_location_wrapper ( SCM xdo, SCM wid)
+SCM xdo_get_window_location_wrapper ( SCM xdo, SCM wid)
 {
     int x,y;
     assert_xdo_window(wid);
@@ -354,8 +322,7 @@ xdo_get_window_location_wrapper ( SCM xdo, SCM wid)
     return make_pair(scm_from_int(x), scm_from_int(y));
 }
 
-SCM
-xdo_get_window_size_wrapper ( SCM xdo, SCM wid)
+SCM xdo_get_window_size_wrapper ( SCM xdo, SCM wid)
 {
     unsigned int w,h;
     assert_xdo_window(wid);
@@ -363,60 +330,52 @@ xdo_get_window_size_wrapper ( SCM xdo, SCM wid)
     return make_pair(scm_from_uint(w), scm_from_uint(h));
 }
 
-SCM
-xdo_get_active_window_wrapper(SCM xdo)
+SCM xdo_get_active_window_wrapper(SCM xdo)
 {
     Window w;
     xdo_get_active_window(SCM_POINTER_VALUE(xdo), &w);
     return wrap_xdo_window(w);
 }
 
-SCM
-xdo_select_window_with_click_wrapper ( SCM xdo)
+SCM xdo_select_window_with_click_wrapper ( SCM xdo)
 {
     Window w;
     xdo_select_window_with_click(SCM_POINTER_VALUE(xdo), &w);
     return wrap_xdo_window(w);
 }
 
-SCM
-xdo_set_number_of_desktops_wrapper ( SCM xdo, SCM ndesktops)
+SCM xdo_set_number_of_desktops_wrapper ( SCM xdo, SCM ndesktops)
 {
     return scm_from_int(xdo_set_number_of_desktops (SCM_POINTER_VALUE(xdo), scm_to_long(ndesktops)));
 }
 
-SCM
-xdo_get_number_of_desktops_wrapper ( SCM xdo)
+SCM xdo_get_number_of_desktops_wrapper ( SCM xdo)
 {
     long n;
     xdo_get_number_of_desktops(SCM_POINTER_VALUE(xdo), &n);
     return scm_from_long(n);
 }
 
-SCM
-xdo_set_current_desktop_wrapper ( SCM xdo, SCM desktop)
+SCM xdo_set_current_desktop_wrapper ( SCM xdo, SCM desktop)
 {
     return scm_from_int(xdo_set_current_desktop(SCM_POINTER_VALUE(xdo), scm_to_long(desktop)));
 
 }
 
-SCM
-xdo_get_current_desktop_wrapper ( SCM xdo)
+SCM xdo_get_current_desktop_wrapper ( SCM xdo)
 {
     long n;
     xdo_get_current_desktop(SCM_POINTER_VALUE(xdo), &n);
     return scm_from_long(n);
 }
 
-SCM
-xdo_set_desktop_for_window_wrapper ( SCM xdo, SCM wid, SCM desktop)
+SCM xdo_set_desktop_for_window_wrapper ( SCM xdo, SCM wid, SCM desktop)
 {
     assert_xdo_window(wid);
     return scm_from_int(xdo_set_desktop_for_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), scm_to_long(desktop)));
 }
 
-SCM
-xdo_get_desktop_for_window_wrapper ( SCM xdo, SCM wid)
+SCM xdo_get_desktop_for_window_wrapper ( SCM xdo, SCM wid)
 {
     long d;
     assert_xdo_window(wid);
@@ -430,22 +389,34 @@ SCM xdo_search_windows_wrapper ( SCM xdo,  SCM search)
     unsigned int length, i;
     SCM lst = SCM_EOL;
     xdo_search_windows(SCM_POINTER_VALUE(xdo), unwrap_xdo_search(search), &win_lst, &length);
-    for (i = length ; i != 0 ; i--) {
+    for (i = length ; i != 0 ; i--)
+    {
         lst = scm_cons(wrap_xdo_window(win_lst[i-1]), lst);
     }
     free(win_lst);
     return lst;
 }
 
-/*
- *SCM xdo_get_window_property_wrapper ( SCM xdo, SCM window, SCM atom, SCM nitems, SCM type, SCM size)
- *{
- *  xdo_get_window_property
- *}
- */
+SCM xdo_get_window_property_wrapper ( SCM xdo, SCM window, SCM name)
+{
+    SCM bv = SCM_UNDEFINED;
+    unsigned char *value;
+    long nitems;
+    int size, i;
+    xdo_get_window_property(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window),
+                            scm_to_locale_string(name), &value, &nitems, NULL, &size);
+    if (nitems > 0)
+    {
+        bv = scm_c_make_bytevector((size_t)nitems*size/8);
+        for (i = 0 ; i < nitems*size/8 ; i++)
+        {
+            scm_c_bytevector_set_x(bv, i, value[i]);
+        }
+    }
+    return bv;
+}
 
-SCM
-xdo_get_input_state_wrapper ( SCM xdo)
+SCM xdo_get_input_state_wrapper ( SCM xdo)
 {
     return scm_from_uint(xdo_get_input_state(SCM_POINTER_VALUE(xdo)));
 }
@@ -550,29 +521,25 @@ SCM xdo_set_active_modifiers_wrapper ( SCM xdo, SCM window,  SCM active_mods)
     return scm_from_int(ret);
 }
 
-SCM
-xdo_get_desktop_viewport_wrapper ( SCM xdo)
+SCM xdo_get_desktop_viewport_wrapper ( SCM xdo)
 {
     int x,y;
     xdo_get_desktop_viewport(SCM_POINTER_VALUE(xdo), &x, &y);
     return scm_cons(scm_from_int(x), scm_cons(scm_from_int(y), SCM_EOL));
 }
 
-SCM
-xdo_set_desktop_viewport_wrapper ( SCM xdo, SCM x, SCM y)
+SCM xdo_set_desktop_viewport_wrapper ( SCM xdo, SCM x, SCM y)
 {
     return scm_from_int(xdo_set_desktop_viewport (SCM_POINTER_VALUE(xdo), scm_to_int(x), scm_to_int(y)));
 }
 
-SCM
-xdo_kill_window_wrapper ( SCM xdo, SCM window)
+SCM xdo_kill_window_wrapper ( SCM xdo, SCM window)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_kill_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window)));
 }
 
-SCM
-xdo_find_window_client_wrapper ( SCM xdo, SCM window, SCM direction)
+SCM xdo_find_window_client_wrapper ( SCM xdo, SCM window, SCM direction)
 {
     Window c;
     int dir = (direction == SCM_UNDEFINED ? 0 : scm_to_int(direction));
@@ -581,8 +548,7 @@ xdo_find_window_client_wrapper ( SCM xdo, SCM window, SCM direction)
     return wrap_xdo_window(c);
 }
 
-       SCM
-       xdo_get_window_name_wrapper ( SCM xdo, SCM window)
+SCM xdo_get_window_name_wrapper ( SCM xdo, SCM window)
 {
     unsigned char *name;
     int len, type;
@@ -591,28 +557,24 @@ xdo_find_window_client_wrapper ( SCM xdo, SCM window, SCM direction)
     return scm_cons(scm_take_locale_stringn((char *)name, len), scm_cons(scm_from_int(type), SCM_EOL));
 }
 
-SCM
-xdo_disable_feature_wrapper (SCM xdo, SCM feature)
+SCM xdo_disable_feature_wrapper (SCM xdo, SCM feature)
 {
     xdo_disable_feature(SCM_POINTER_VALUE(xdo), scm_to_int(feature));
     return SCM_UNDEFINED;
 }
 
-SCM
-xdo_enable_feature_wrapper (SCM xdo, SCM feature)
+SCM xdo_enable_feature_wrapper (SCM xdo, SCM feature)
 {
     xdo_enable_feature(SCM_POINTER_VALUE(xdo), scm_to_int(feature));
     return SCM_UNDEFINED;
 }
 
-SCM
-xdo_has_feature_wrapper (SCM xdo, SCM feature)
+SCM xdo_has_feature_wrapper (SCM xdo, SCM feature)
 {
     return scm_from_int(xdo_has_feature(SCM_POINTER_VALUE(xdo), scm_to_int(feature)));
 }
 
-SCM
-xdo_get_viewport_dimensions_wrapper (SCM xdo, SCM screen)
+SCM xdo_get_viewport_dimensions_wrapper (SCM xdo, SCM screen)
 {
     unsigned int w,h;
     xdo_get_viewport_dimensions(SCM_POINTER_VALUE(xdo), &w, &h, scm_to_int(screen));
@@ -665,7 +627,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("xdo-set-desktop-for-window", 2, 0, 0, xdo_set_desktop_for_window_wrapper);
     scm_c_define_gsubr("xdo-get-desktop-for-window", 1, 0, 0, xdo_get_desktop_for_window_wrapper);
     scm_c_define_gsubr("xdo-search-windows", 2, 0, 0, xdo_search_windows_wrapper);
-    /*scm_c_define_gsubr("xdo-getwinprop", 6, 0, 0, xdo_getwinprop_wrapper);*/
+    scm_c_define_gsubr("xdo-get-window-property", 3, 0, 0, xdo_get_window_property_wrapper);
     scm_c_define_gsubr("xdo-get-input-state", 1, 0, 0, xdo_get_input_state_wrapper);
     /*scm_c_define_gsubr("xdo-keysym-charmap", 0, 0, 0, xdo_keysym_charmap_wrapper);*/
     scm_c_define_gsubr("xdo-get-symbol-map", 0, 0, 0, xdo_get_symbol_map_wrapper);
@@ -724,6 +686,7 @@ init_xdo_libxdo(void *unused)
         "xdo-set-desktop-for-window",
         "xdo-get-desktop-for-window",
         "xdo-search-windows",
+        "xdo-get-window-property",
         "xdo-get-input-state",
         "xdo-get-symbol-map",
         "xdo-get-active-modifiers",
