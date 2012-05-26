@@ -1,18 +1,15 @@
-xdo-guile
-=========
+# xdo-guile
 
 This is a rather simple wrapper around libxdo, provided by
 [xdotool](http://www.semicomplete.com/projects/xdotool), for Guile using a
 currently unofficial fork of libxdo.
 
-libxdo replacement?
--------------------
+## libxdo replacement?
 
 Since this project uses an inofficial version of libxdo I thought it was only
 fair to justify this.
 
-Why change libxdo at all?
-+++++++++++++++++++++++++
+### Why change libxdo at all?
 
 There are honestly very little need for it at all; libxdo, in it's official
 version, is a very nice library and easy to work with. Being so close to
@@ -21,8 +18,7 @@ Therefor I decided to fix this and as I already done the changes it felt like
 there was no real use to write my own piece of code towards the official
 version instead of myown.
 
-The alternative codes
-+++++++++++++++++++++
+### The alternative codes
 
  + [modded xdotool](https://github.com/KoFish/xdotool/tree/naming-fixed) - The
    main differences between this version of xdotool and the official one is
