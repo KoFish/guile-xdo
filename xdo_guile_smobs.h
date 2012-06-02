@@ -259,21 +259,32 @@ make_xdo_search_wrapper(SCM title, SCM winclass, SCM winclassname,
                         SCM only_visible, SCM screen,
                         SCM searchmask, SCM desktop)
 {
+    SCM ret;
+    char *title_c, *winclass_c, *winclassname_c, *winname_c;
+    title_c = scm_is_false(title) ? NULL : scm_to_locale_string(title);
+    winclass_c = scm_is_false(winclass) ? NULL : scm_to_locale_string(winclass);
+    winclassname_c = scm_is_false(winclassname) ? NULL : scm_to_locale_string(winclassname);
+    winname_c = scm_is_false(winname) ? NULL : scm_to_locale_string(winname);
 #define _(x, y, z) (scm_is_false(x) ? y : z)
-    return make_xdo_search(
-               _(title, NULL, scm_to_locale_string(title)), // title
-               _(winclass, NULL, scm_to_locale_string(winclass)), // winclass
-               _(winclassname, NULL, scm_to_locale_string(winclassname)), // winclassname
-               _(winname, NULL, scm_to_locale_string(winname)), // winname
-               _(pid, 0, scm_to_int(pid)), // pid
-               _(max_depth, 0, scm_to_long(max_depth)), // max_depth
-               _(only_visible, 0, (scm_is_true(only_visible) ? 1 : scm_to_int(only_visible))),
-               _(screen, 0, scm_to_int(screen)), // screen
-               SEARCH_ALL,
-               _(searchmask, 0, scm_to_uint(searchmask)), // searchmask
-               _(desktop, 0, scm_to_long(desktop)), // desktop
-               1024); // limit
+    ret = make_xdo_search(
+            title_c,
+            winclass_c,
+            winclassname_c,
+            winname_c,
+            _(pid, 0, scm_to_int(pid)), // pid
+            _(max_depth, 0, scm_to_long(max_depth)), // max_depth
+            _(only_visible, 0, (scm_is_true(only_visible) ? 1 : scm_to_int(only_visible))),
+            _(screen, 0, scm_to_int(screen)), // screen
+            SEARCH_ALL,
+            _(searchmask, 0, scm_to_uint(searchmask)), // searchmask
+            _(desktop, 0, scm_to_long(desktop)), // desktop
+            1024); // limit
 #undef _
+    if (title_c != NULL) free(title_c);
+    if (winclass_c != NULL) free(winclass_c);
+    if (winclassname_c != NULL) free(winclassname_c);
+    if (winname_c != NULL) free(winname_c);
+    return ret;
 }
 
 xdo_search_t *
