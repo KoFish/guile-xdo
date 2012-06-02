@@ -35,7 +35,7 @@
                     (lib:xdo-move-mouse-relative-to-window xdo window x y)
                     (if relative
                       (lib:xdo-move-mouse-relative xdo x y)
-                      (if (> (length rest) 1)
+                      (if (and rest (> (length rest) 1))
                         (lib:xdo-move-mouse xdo x y (car rest))
                         (lib:xdo-move-mouse xdo x y 0)))))))
 
