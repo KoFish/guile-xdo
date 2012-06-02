@@ -87,6 +87,15 @@ SCM xdo_get_mouse_location_wrapper(SCM xdo, SCM with_window)
     return make_mouse_location(x, y, screen, window);
 }
 
+SCM xdo_get_window_at_mouse_wrapper(SCM xdo)
+{
+    Window window;
+    if (xdo_get_window_at_mouse(SCM_POINTER_VALUE(xdo), &window) == 0) 
+        return wrap_xdo_window(window);
+    else
+        return SCM_UNDEFINED;
+}
+
 SCM xdo_wait_for_mouse_move_wrapper(SCM xdo, SCM x, SCM y, SCM to)
 {
     if ((to != SCM_UNDEFINED) && (scm_is_true(to)))
@@ -626,6 +635,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("lib:xdo-mouse-down", 3, 0, 0, xdo_mouse_down_wrapper);
     scm_c_define_gsubr("lib:xdo-mouse-up", 3, 1, 0, xdo_mouse_up_wrapper);
     scm_c_define_gsubr("lib:xdo-get-mouse-location", 1, 0, 0, xdo_get_mouse_location_wrapper);
+    scm_c_define_gsubr("lib:xdo-get-window-at-mouse", 1, 0, 0, xdo_get_window_at_mouse_wrapper);
     scm_c_define_gsubr("lib:xdo-wait-for-mouse-move", 3, 1, 0, xdo_wait_for_mouse_move_wrapper);
     scm_c_define_gsubr("lib:xdo-click-window", 3, 2, 0, xdo_click_window_wrapper);
     scm_c_define_gsubr("lib:xdo-enter-text-window", 3, 1, 0, xdo_enter_text_window_wrapper);
@@ -685,6 +695,7 @@ init_xdo_libxdo(void *unused)
         "lib:xdo-mouse-down",
         "lib:xdo-mouse-up",
         "lib:xdo-get-mouse-location",
+        "lib:xdo-get-window-at-mouse",
         "lib:xdo-wait-for-mouse-move",
         "lib:xdo-click-window",
         "lib:xdo-enter-text-window",
