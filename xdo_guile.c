@@ -139,7 +139,7 @@ SCM xdo_enter_text_window_wrapper(SCM xdo, SCM window, SCM string, SCM delay)
     string_c = scm_to_locale_string(string);
     ret = scm_from_int(xdo_enter_text_window(SCM_POINTER_VALUE(xdo),
                         SCM_SMOB_DATA(window),
-                        string_c, (delay == SCM_UNDEFINED ?  1000 : scm_to_uint32(delay))));
+                        string_c, ((delay == SCM_UNDEFINED || !scm_is_true(delay)) ?  1000 : scm_to_uint32(delay))));
     free(string_c);
     return ret;
 }
@@ -642,7 +642,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("lib:xdo-send-keysequence-window", 3, 2, 0, xdo_send_keysequence_window_wrapper);
     scm_c_define_gsubr("lib:xdo-move-window", 4, 0, 0, xdo_move_window_wrapper);
     scm_c_define_gsubr("lib:xdo-translate-window-with-sizehint", 4, 0, 0, xdo_translate_window_with_sizehint);
-    scm_c_define_gsubr("lib:xdo-set-windo-size", 5, 0, 0, xdo_set_window_size_wrapper);
+    scm_c_define_gsubr("lib:xdo-set-window-size", 5, 0, 0, xdo_set_window_size_wrapper);
     scm_c_define_gsubr("lib:xdo-set-window-property", 4, 0, 0, xdo_set_window_property_wrapper);
     scm_c_define_gsubr("lib:xdo-set-window-class", 4, 0, 0, xdo_set_window_class_wrapper);
     scm_c_define_gsubr("lib:xdo-set-window-urgency", 3, 0, 0, xdo_set_window_urgency_wrapper);
@@ -702,7 +702,7 @@ init_xdo_libxdo(void *unused)
         "lib:xdo-send-keysequence-window",
         "lib:xdo-move-window",
         "lib:xdo-translate-window-with-sizehint",
-        "lib:xdo-set-windo-size",
+        "lib:xdo-set-window-size",
         "lib:xdo-set-window-property",
         "lib:xdo-set-window-class",
         "lib:xdo-set-window-urgency",
