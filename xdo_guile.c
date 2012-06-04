@@ -281,13 +281,6 @@ SCM xdo_raise_window_wrapper (SCM xdo, SCM wid)
                                          SCM_SMOB_DATA(wid)));
 }
 
-SCM xdo_get_focused_window_wrapper (SCM xdo)
-{
-    Window w;
-    xdo_get_focused_window(SCM_POINTER_VALUE(xdo), &w);
-    return wrap_xdo_window(w);
-}
-
 SCM xdo_wait_for_window_focus_wrapper (SCM xdo, SCM window, SCM want_focus)
 {
     assert_xdo_window(window);
@@ -300,6 +293,13 @@ SCM xdo_get_pid_window_wrapper (SCM xdo, SCM window)
 {
     assert_xdo_window(window);
     return scm_from_int(xdo_get_pid_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window)));
+}
+
+SCM xdo_get_focused_window_wrapper (SCM xdo)
+{
+    Window w;
+    xdo_get_focused_window(SCM_POINTER_VALUE(xdo), &w);
+    return wrap_xdo_window(w);
 }
 
 SCM xdo_get_focused_window_sane_wrapper (SCM xdo)
@@ -634,7 +634,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("lib:xdo-move-mouse-relative", 3, 0, 0, xdo_move_mouse_rel_wrapper);
     scm_c_define_gsubr("lib:xdo-mouse-down", 3, 0, 0, xdo_mouse_down_wrapper);
     scm_c_define_gsubr("lib:xdo-mouse-up", 3, 1, 0, xdo_mouse_up_wrapper);
-    scm_c_define_gsubr("lib:xdo-get-mouse-location", 1, 0, 0, xdo_get_mouse_location_wrapper);
+    scm_c_define_gsubr("lib:xdo-get-mouse-location", 2, 0, 0, xdo_get_mouse_location_wrapper);
     scm_c_define_gsubr("lib:xdo-get-window-at-mouse", 1, 0, 0, xdo_get_window_at_mouse_wrapper);
     scm_c_define_gsubr("lib:xdo-wait-for-mouse-move", 3, 1, 0, xdo_wait_for_mouse_move_wrapper);
     scm_c_define_gsubr("lib:xdo-click-window", 3, 2, 0, xdo_click_window_wrapper);
@@ -676,7 +676,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("lib:xdo-get-symbol-map", 0, 0, 0, xdo_get_symbol_map_wrapper);
     scm_c_define_gsubr("lib:xdo-get-active-modifiers", 1, 0, 0, xdo_get_active_modifiers_wrapper);
     scm_c_define_gsubr("lib:xdo-clear-active-modifiers", 3, 0, 0, xdo_clear_active_modifiers_wrapper);
-    scm_c_define_gsubr("lib:xdo-set-active-modifiers", 0, 0, 0, xdo_set_active_modifiers_wrapper);
+    scm_c_define_gsubr("lib:xdo-set-active-modifiers", 3, 0, 0, xdo_set_active_modifiers_wrapper);
     scm_c_define_gsubr("lib:xdo-get-desktop-viewport", 1, 0, 0, xdo_get_desktop_viewport_wrapper);
     scm_c_define_gsubr("lib:xdo-set-desktop-viewport", 3, 0, 0, xdo_set_desktop_viewport_wrapper);
     scm_c_define_gsubr("lib:xdo-kill-window", 2, 0, 0, xdo_kill_window_wrapper);
