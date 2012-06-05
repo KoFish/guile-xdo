@@ -195,9 +195,18 @@
          (let ((window (or window (xdo-get-active-window xdo))))
            (lib:xdo-clear-active-modifiers xdo window mods)))
 
+(define* (xdo-search-windows xdo #:optional rest #:key title winclass
+                             winclassname winname pid max-depth
+                             screen desktop)
+         (let ((only-visible (if (memq #:only-visible (or rest '())) #t #f))
+               (all (if (memq #:any (or rest '())) #f #t)))
+           (display rest) (newline)
+           (let ((search (make-xdo-search title winclass winclassname
+                                          winname pid max-depth
+                                          only-visible screen desktop
+                                          (if all 0 1))))
+             (lib:xdo-search-windows xdo search))))
 #|
-        "lib:xdo-search-windows",
-
         "lib:xdo-get-input-state",
         "lib:xdo-get-symbol-map",
 

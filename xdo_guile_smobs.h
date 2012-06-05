@@ -257,14 +257,27 @@ SCM
 make_xdo_search_wrapper(SCM title, SCM winclass, SCM winclassname,
                         SCM winname, SCM pid, SCM max_depth,
                         SCM only_visible, SCM screen,
-                        SCM searchmask, SCM desktop)
+                        SCM desktop, SCM require)
 {
     SCM ret;
-    char *title_c, *winclass_c, *winclassname_c, *winname_c;
-    title_c = scm_is_false(title) ? NULL : scm_to_locale_string(title);
-    winclass_c = scm_is_false(winclass) ? NULL : scm_to_locale_string(winclass);
-    winclassname_c = scm_is_false(winclassname) ? NULL : scm_to_locale_string(winclassname);
-    winname_c = scm_is_false(winname) ? NULL : scm_to_locale_string(winname);
+    unsigned int mask = 0;
+    char *title_c = NULL, *winclass_c = NULL, *winclassname_c = NULL, *winname_c = NULL;
+    if (!scm_is_false(title)) {
+      title_c = scm_to_locale_string(title); mask += (1 << 0);
+    }
+    if (!scm_is_false(winclass)) {
+      winclass_c = scm_to_locale_string(winclass); mask += (1 << 1);
+    }
+    if (!scm_is_false(winname)) {
+      winname_c = scm_to_locale_string(winname); mask += (1 << 2);
+    }
+    if (!scm_is_false(winclassname)) {
+      winclassname_c = scm_to_locale_string(winclassname); mask += (1 << 6);
+    }
+    if (!scm_is_false(pid)) mask += (1 << 3);
+    if (!scm_is_false(only_visible)) mask += (1 << 4);
+    if (!scm_is_false(screen)) mask += (1 << 5);
+    if (!scm_is_false(desktop)) mask += (1 << 7);
 #define _(x, y, z) (scm_is_false(x) ? y : z)
     ret = make_xdo_search(
             title_c,
@@ -275,8 +288,8 @@ make_xdo_search_wrapper(SCM title, SCM winclass, SCM winclassname,
             _(max_depth, 0, scm_to_long(max_depth)), // max_depth
             _(only_visible, 0, (scm_is_true(only_visible) ? 1 : scm_to_int(only_visible))),
             _(screen, 0, scm_to_int(screen)), // screen
-            SEARCH_ALL,
-            _(searchmask, 0, scm_to_uint(searchmask)), // searchmask
+            _(require, 0, scm_to_int(require)), // require
+            mask, // searchmask
             _(desktop, 0, scm_to_long(desktop)), // desktop
             1024); // limit
 #undef _
