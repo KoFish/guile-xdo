@@ -12,4 +12,7 @@ coding: utf-8
   (let ((xdo (new-xdo)))
     (display "xdo-version: ")
     (display (lib:xdo-version)) (newline)
-    (xdo-move-mouse xdo '(600 200))))
+    (xdo-move-mouse xdo '(600 200))
+    (display (xdo-get-window-name xdo))
+    (display (xdo-get-window-name xdo #:window (xdo-get-window-at-mouse xdo)))))
+
