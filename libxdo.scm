@@ -3,14 +3,57 @@
                #:use-module (ice-9 match)
                #:export (new-xdo
                          lib:xdo-version
+                         lib:xdo-enable-feature
+                         lib:xdo-disable-feature
+                         lib:xdo-has-feature
                          xdo-move-mouse
                          xdo-mouse-button-up
                          xdo-mouse-button-down 
                          xdo-get-mouse-location 
-                         xdo-get-window-at-mouse 
                          xdo-wait-for-mouse-move
                          xdo-click
                          xdo-enter-text
+                         xdo-send-keysequence
+                         xdo-move-window
+                         xdo-set-window-size
+                         xdo-set-window-property
+                         xdo-set-window-class
+                         xdo-set-urgency
+                         xdo-set-override-redirect
+                         xdo-wait-for-mouse-move
+                         xdo-wait-for-window
+                         xdo-raise
+                         xdo-map
+                         xdo-unmap
+                         xdo-activate
+                         xdo-minimize
+                         xdo-reparent-window
+                         xdo-focus-window
+                         xdo-kill-window
+                         xdo-get-pid
+                         xdo-get-window-location
+                         xdo-get-window-size
+                         xdo-get-window-name
+                         xdo-get-window-property
+                         xdo-set-number-of-desktops
+                         xdo-get-number-of-desktops
+                         xdo-get-current-desktop
+                         xdo-set-current-desktop
+                         xdo-get-active-window
+                         xdo-get-focused-window
+                         xdo-get-window-at-mouse
+                         xdo-select-window-with-click
+                         xdo-get-desktop-viewport
+                         xdo-set-desktop-viewport
+                         xdo-get-desktop-for-window
+                         xdo-get-viewport-dimensions
+                         xdo-find-window-client
+                         xdo-search-windows
+                         xdo-get-active-modifiers
+                         xdo-set-active-modifiers
+                         xdo-clear-active-modifiers
+                         xdo-get-input-state
+                         xdo-get-symbol-map
                          ))
 
 (load-extension "./libxdo_guile.so" "scm_init_xdo_libxdo_module")
@@ -28,17 +71,17 @@
 ;;       relative to the current position, without this the 
 ;;       fourth argument should be what sceen the position 
 ;;       should be relative too.
-(define* (xdo-move-mouse xdo xy #:optional rest)
-         (let ((window (if rest (memq #:window rest) #f))
-               (relative (if rest (memq #:relative rest) #f))
-               (x (car xy)) (y (cadr xy)))
-           (eq? 0 (if (and window (> (length window) 2))
-                    (lib:xdo-move-mouse-relative-to-window xdo window x y)
-                    (if relative
-                      (lib:xdo-move-mouse-relative xdo x y)
-                      (if (and rest (> (length rest) 1))
-                        (lib:xdo-move-mouse xdo x y (car rest))
-                        (lib:xdo-move-mouse xdo x y 0)))))))
+(define (xdo-move-mouse xdo xy . rest)
+  (let ((window (if rest (memq #:window rest) #f))
+        (relative (if rest (memq #:relative rest) #f))
+        (x (car xy)) (y (cadr xy)))
+    (eq? 0 (if (and window (> (length window) 2))
+             (lib:xdo-move-mouse-relative-to-window xdo window x y)
+             (if relative
+               (lib:xdo-move-mouse-relative xdo x y)
+               (if (and rest (> (length rest) 1))
+                 (lib:xdo-move-mouse xdo x y (car rest))
+                 (lib:xdo-move-mouse xdo x y 0)))))))
 
 (define* (xdo-mouse-button-up xdo button #:key window)
          (eq? 0 (lib:xdo-mouse-up xdo (or window (xdo-get-active-window xdo)) button)))
@@ -47,7 +90,8 @@
          (eq? 0 (lib:xdo-mouse-down xdo (or window (xdo-get-active-window xdo)) button)))
 
 (define* (xdo-get-mouse-location xdo #:optional with-window)
-         (lib:xdo-get-mouse-location xdo (car with-window)))
+         (let ((ret (lib:xdo-get-mouse-location xdo (car with-window))))
+           (if (pair? ret) ret #f)))
 
 (define* (xdo-click xdo button #:key repeat delay window)
          (eq? 0 (lib:xdo-click-window xdo (or window (xdo-get-active-window xdo)) button repeat delay)))
@@ -101,13 +145,19 @@
            (eq? 0 (lib:xdo-set-window-override-redirect xdo window (if ored 0 1)))))
 
 (define* (xdo-get-focused-window xdo #:optional rest)
-         (let ((sane (eq? rest '(#:sane))))
-           (if sane
-             (lib:xdo-get-focused-window-sane xdo)
-             (lib:xdo-get-focused-window xdo))))
+         (let* ((sane (eq? rest '(#:sane)))
+                (ret (if sane
+                       (lib:xdo-get-focused-window-sane xdo)
+                       (lib:xdo-get-focused-window xdo))))
+           (if (xdo-window? ret) ret #f)))
 
-(define (xdo-get-window-at-mouse xdo) (lib:xdo-get-window-at-mouse xdo))
-(define (xdo-select-window-with-click xdo) (lib:xdo-select-window-with-click xdo))
+(define (xdo-get-window-at-mouse xdo)
+  (let ((ret (lib:xdo-get-window-at-mouse xdo)))
+    (if (xdo-window? ret) ret #f)))
+
+(define (xdo-select-window-with-click xdo)
+  (let ((ret (lib:xdo-select-window-with-click xdo)))
+    (if (xdo-window? ret) ret #f)))
 
 (define* (xdo-wait-for-mouse-move xdo #:key to from)
          (let ((coord (or to from)))
@@ -154,46 +204,53 @@
            (lib:xdo-get-pid-window xdo window))) 
 
 (define* (xdo-get-window-location xdo #:key window)
-         (let ((window (or window (xdo-get-active-window xdo))))
-           (lib:xdo-get-window-location xdo window))) 
+         (let* ((window (or window (xdo-get-active-window xdo)))
+                (ret (lib:xdo-get-window-location xdo window)))
+           (if (pair? ret) ret #f))) 
 
 (define* (xdo-get-window-size xdo #:key window)
-         (let ((window (or window (xdo-get-active-window xdo))))
-           (lib:xdo-get-window-size xdo window))) 
+         (let* ((window (or window (xdo-get-active-window xdo)))
+                (ret (lib:xdo-get-window-size xdo window)))
+           (if (pair? ret) ret #f))) 
 
 (define (xdo-get-active-window xdo)
-         (lib:xdo-get-active-window xdo)) 
+  (let ((ret (lib:xdo-get-active-window xdo)))
+    (if (xdo-window? ret) ret #f))) 
 
 (define (xdo-kill-window xdo window)
          (eq? 0 (lib:xdo-kill-window xdo window))) 
 
 (define* (xdo-get-window-property xdo name #:key window) 
-         (let ((window (or window (xdo-get-active-window xdo)))) 
-           (lib:xdo-get-window-property xdo window name))) 
+         (let* ((window (or window (xdo-get-active-window xdo))) 
+                (ret (lib:xdo-get-window-property xdo window name)))
+           (if (bytevector? ret) ret #f))) 
 
 (define (xdo-set-number-of-desktops xdo n)
          (eq? 0 (lib:xdo-set-number-of-desktops xdo n)))
 
 (define (xdo-get-number-of-desktops xdo)
-         (lib:xdo-get-number-of-desktops xdo))
+         (let ((ret (lib:xdo-get-number-of-desktops xdo)))
+           (if (>= ret 0) ret #f)))
 
 (define (xdo-get-current-desktop xdo)
-         (lib:xdo-get-current-desktop xdo))
+         (let ((ret (lib:xdo-get-current-desktop xdo)))
+           (if (>= ret 0) ret #f)))
 
 (define* (xdo-set-current-desktop xdo desktop #:key window)
          (let ((window (or window (xdo-get-active-window xdo))))
            (eq? 0 (lib:xdo-set-current-desktop xdo desktop))))
 
 (define (xdo-get-active-modifiers xdo)
-         (lib:xdo-get-active-modifiers xdo))
+  (let ((ret (lib:xdo-get-active-modifiers xdo)))
+    (if (list? ret) ret #f)))
 
 (define* (xdo-set-active-modifiers xdo mods #:key window)
          (let ((window (or window (xdo-get-active-window xdo))))
-           (lib:xdo-set-active-modifiers xdo window mods)))
+           (eq? 0 (lib:xdo-set-active-modifiers xdo window mods))))
 
 (define* (xdo-clear-active-modifiers xdo mods #:key window)
          (let ((window (or window (xdo-get-active-window xdo))))
-           (lib:xdo-clear-active-modifiers xdo window mods)))
+           (eq? 0 (lib:xdo-clear-active-modifiers xdo window mods))))
 
 (define* (xdo-search-windows xdo #:optional rest #:key title winclass
                              winclassname winname pid max-depth
@@ -205,25 +262,37 @@
                                           winname pid max-depth
                                           only-visible screen desktop
                                           (if all 0 1))))
-             (lib:xdo-search-windows xdo search))))
-#|
-        "lib:xdo-get-input-state",
-        "lib:xdo-get-symbol-map",
+             (let ((ret (lib:xdo-search-windows xdo search)))
+               (if (eq? ret -1) #f ret)))))
 
-        "lib:xdo-get-active-modifiers",
-        "lib:xdo-set-active-modifiers",
-        "lib:xdo-clear-active-modifiers",
+(define xdo-get-input-state lib:xdo-get-input-state)
+(define xdo-get-symbol-map lib:xdo-get-symbol-map)
 
-        "lib:xdo-get-desktop-viewport",
-        "lib:xdo-set-desktop-viewport",
+(define* (xdo-get-viewport-dimensions xdo #:key screen)
+         (let* ((screen (or screen 0))
+                (ret (lib:xdo-get-viewport-dimensions xdo screen)))
+           (if (pair? ret) ret #f)))
 
-        "lib:xdo-get-viewport-dimensions",
+(define (xdo-get-desktop-viewport xdo)
+  (let ((ret (lib:xdo-get-desktop-viewport xdo)))
+    (if (pair? ret) ret #f)))
 
-        "lib:xdo-find-window-client",
+(define (xdo-set-desktop-viewport xdo xy)
+  (let ((ret (lib:xdo-set-desktop-viewport xdo (car xy) (cadr xy))))
+    (if (eq? -1 ret) #f #t)))
 
-        "lib:xdo-get-window-name",
+(define* (xdo-get-desktop-for-window xdo #:key window)
+         (let* ((window (or window (xdo-get-active-window xdo)))
+                (ret (lib:get-desktop-for-window xdo window)))
+           (if (>= ret 0) ret #f)))
 
-        "lib:xdo-disable-feature",
-        "lib:xdo-enable-feature",
-        "lib:xdo-has-feature",
-|#
+(define* (xdo-find-window-client xdo #:key window direction)
+         (let ((window (or window (xdo-get-active-window xdo)))
+               (direction (if (eq? direction 'parent) 0 1 )))
+           (let ((ret (lib:xdo-find-window-client xdo window direction)))
+             (if (xdo-window? ret) ret #f))))
+
+(define* (xdo-get-window-name xdo #:key window)
+         (let* ((window (or window (xdo-get-active-window xdo)))
+                (ret (lib:xdo-get-window-name xdo window)))
+           (if (pair? ret) ret #f)))
