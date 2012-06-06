@@ -15,9 +15,14 @@
 ;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;;; Commentary:
-;; 
+;; This module is a low-level, or thin, wrapper for libxdo where most
+;; functions have been adapted to a more scheme-like API. Almost all
+;; functions take a xdo pointer as it's first argument, you get this
+;; pointer by calling `new-xdo` with the optional argument for what
+;; display to use, by default it looks in the DISPLAY env-variable.
 
 ;;; Code:
+
 (define-module (xdo libxdo)
                #:use-module (ice-9 optargs)
                #:use-module (ice-9 match)
@@ -79,6 +84,8 @@
 (load-extension "./libxdo_guile.so" "scm_init_xdo_libxdo_module")
 
 (define* (new-xdo #:optional display) 
+         "Creates a new xdo pointer. Display defaults to the 
+         value of the DISPLAY environmental variable."
          (if display
            (lib:xdo-new display)
            (lib:xdo-new))) 
@@ -109,9 +116,9 @@
 (define* (xdo-mouse-button-down xdo button #:key window)
          (eq? 0 (lib:xdo-mouse-down xdo (or window (xdo-get-active-window xdo)) button)))
 
-(define* (xdo-get-mouse-location xdo #:optional with-window)
-         (let ((ret (lib:xdo-get-mouse-location xdo (car with-window))))
-           (if (pair? ret) ret #f)))
+(define (xdo-get-mouse-location xdo)
+  (let ((ret (lib:xdo-get-mouse-location xdo)))
+    (if (mouse-location? ret) ret #f)))
 
 (define* (xdo-click xdo button #:key repeat delay window)
          (eq? 0 (lib:xdo-click-window xdo (or window (xdo-get-active-window xdo)) button repeat delay)))
