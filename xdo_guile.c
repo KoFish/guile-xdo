@@ -18,7 +18,8 @@ SCM xdo_new_wrapper(SCM disp)
         char *display = getenv("DISPLAY");
         return scm_from_pointer(xdo_new(display), xdo_free_pointer);
     }
-    else {
+    else
+    {
         SCM ret;
         char *disp_c = scm_to_locale_string(disp);
         ret = scm_from_pointer(xdo_new(disp_c), xdo_free_pointer);
@@ -74,23 +75,26 @@ SCM xdo_mouse_up_wrapper(SCM xdo, SCM window, SCM button)
 
 SCM xdo_get_mouse_location_wrapper(SCM xdo, SCM with_window)
 {
-    int x, y, screen;
+    int x, y, screen, ret;
     Window window = -1;
     if ((with_window != SCM_UNDEFINED) && (scm_is_true(with_window)))
     {
-        xdo_get_mouse_location2(SCM_POINTER_VALUE(xdo), &x, &y, &screen, &window);
+        ret = xdo_get_mouse_location2(SCM_POINTER_VALUE(xdo), &x, &y, &screen, &window);
     }
     else
     {
-        xdo_get_mouse_location(SCM_POINTER_VALUE(xdo), &x, &y, &screen);
+        ret = xdo_get_mouse_location(SCM_POINTER_VALUE(xdo), &x, &y, &screen);
     }
-    return make_mouse_location(x, y, screen, window);
+    if (ret == XDO_SUCCESS)
+        return make_mouse_location(x, y, screen, window);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_get_window_at_mouse_wrapper(SCM xdo)
 {
     Window window;
-    if (xdo_get_window_at_mouse(SCM_POINTER_VALUE(xdo), &window) == 0) 
+    if (xdo_get_window_at_mouse(SCM_POINTER_VALUE(xdo), &window) == 0)
         return wrap_xdo_window(window);
     else
         return SCM_UNDEFINED;
@@ -138,8 +142,8 @@ SCM xdo_enter_text_window_wrapper(SCM xdo, SCM window, SCM string, SCM delay)
     assert_xdo_window(window);
     string_c = scm_to_locale_string(string);
     ret = scm_from_int(xdo_enter_text_window(SCM_POINTER_VALUE(xdo),
-                        SCM_SMOB_DATA(window),
-                        string_c, ((delay == SCM_UNDEFINED || !scm_is_true(delay)) ?  1000 : scm_to_uint32(delay))));
+                       SCM_SMOB_DATA(window),
+                       string_c, ((delay == SCM_UNDEFINED || !scm_is_true(delay)) ?  1000 : scm_to_uint32(delay))));
     free(string_c);
     return ret;
 }
@@ -163,20 +167,20 @@ SCM xdo_send_keysequence_window_wrapper(SCM xdo, SCM window, SCM keysequence, SC
     if (mstr != SCM_UNDEFINED && scm_is_true(scm_string_locale_ci_eq(mstr, scm_from_locale_string("up"), SCM_UNDEFINED)))
     {
         ret = scm_from_int(xdo_send_keysequence_window_up(SCM_POINTER_VALUE(xdo),
-                    SCM_SMOB_DATA(window),
-                    keysequence_c, d));
+                           SCM_SMOB_DATA(window),
+                           keysequence_c, d));
     }
     else if (mstr != SCM_UNDEFINED && scm_is_true(scm_string_locale_ci_eq(mstr, scm_from_locale_string("down"), SCM_UNDEFINED)))
     {
         ret = scm_from_int(xdo_send_keysequence_window_down(SCM_POINTER_VALUE(xdo),
-                    SCM_SMOB_DATA(window),
-                    keysequence_c, d));
+                           SCM_SMOB_DATA(window),
+                           keysequence_c, d));
     }
     else
     {
         ret = scm_from_int(xdo_send_keysequence_window(SCM_POINTER_VALUE(xdo),
-                    SCM_SMOB_DATA(window),
-                    keysequence_c, d));
+                           SCM_SMOB_DATA(window),
+                           keysequence_c, d));
     }
     free(keysequence_c);
     return ret;
@@ -206,7 +210,7 @@ SCM xdo_translate_window_with_sizehint_wrapper(SCM xdo, SCM window, SCM width, S
     }
     else
     {
-        return scm_from_int(ret);
+        return scm_from_int(-ret);
     }
 }
 
@@ -228,8 +232,8 @@ SCM xdo_set_window_property_wrapper (SCM xdo, SCM wid, SCM property, SCM value)
     property_c = scm_to_locale_string(property),
     value_c = scm_to_locale_string(value);
     ret = scm_from_int(xdo_set_window_property(SCM_POINTER_VALUE(xdo),
-                        SCM_SMOB_DATA(wid),
-                        property_c, value_c));
+                       SCM_SMOB_DATA(wid),
+                       property_c, value_c));
     free(property_c);
     free(value_c);
     return ret;
@@ -244,8 +248,8 @@ SCM xdo_set_window_class_wrapper (SCM xdo, SCM wid, SCM name, SCM class)
     name_c = scm_to_locale_string(name);
     class_c = scm_to_locale_string(class);
     ret = scm_from_int(xdo_set_window_class(SCM_POINTER_VALUE(xdo),
-                        SCM_SMOB_DATA(wid),
-                        name_c, class_c));
+                                            SCM_SMOB_DATA(wid),
+                                            name_c, class_c));
     free(name_c);
     free(class_c);
     return ret;
@@ -298,15 +302,21 @@ SCM xdo_get_pid_window_wrapper (SCM xdo, SCM window)
 SCM xdo_get_focused_window_wrapper (SCM xdo)
 {
     Window w;
-    xdo_get_focused_window(SCM_POINTER_VALUE(xdo), &w);
-    return wrap_xdo_window(w);
+    int ret = xdo_get_focused_window(SCM_POINTER_VALUE(xdo), &w);
+    if (ret == XDO_SUCCESS)
+        return wrap_xdo_window(w);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_get_focused_window_sane_wrapper (SCM xdo)
 {
     Window w;
-    xdo_get_focused_window_sane(SCM_POINTER_VALUE(xdo), &w);
-    return wrap_xdo_window(w);
+    int ret = xdo_get_focused_window_sane(SCM_POINTER_VALUE(xdo), &w);
+    if (ret == XDO_SUCCESS)
+        return wrap_xdo_window(w);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_activate_window_wrapper (SCM xdo, SCM wid)
@@ -354,32 +364,45 @@ SCM xdo_reparent_window_wrapper (SCM xdo, SCM wid_source, SCM wid_target)
 
 SCM xdo_get_window_location_wrapper ( SCM xdo, SCM wid)
 {
-    int x,y;
+    int x,y,ret;
     assert_xdo_window(wid);
-    xdo_get_window_location(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), &x, &y, NULL);
-    return make_pair(scm_from_int(x), scm_from_int(y));
+    ret = xdo_get_window_location(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), &x, &y, NULL);
+    if (ret == XDO_SUCCESS)
+        return make_pair(scm_from_int(x), scm_from_int(y));
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_get_window_size_wrapper ( SCM xdo, SCM wid)
 {
     unsigned int w,h;
+    int ret;
     assert_xdo_window(wid);
-    xdo_get_window_size(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), &w, &h);
-    return make_pair(scm_from_uint(w), scm_from_uint(h));
+    ret = xdo_get_window_size(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), &w, &h);
+    if (ret == XDO_SUCCESS)
+        return make_pair(scm_from_uint(w), scm_from_uint(h));
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_get_active_window_wrapper(SCM xdo)
 {
     Window w;
-    xdo_get_active_window(SCM_POINTER_VALUE(xdo), &w);
-    return wrap_xdo_window(w);
+    int ret = xdo_get_active_window(SCM_POINTER_VALUE(xdo), &w);
+    if (ret == XDO_SUCCESS)
+        return wrap_xdo_window(w);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_select_window_with_click_wrapper ( SCM xdo)
 {
     Window w;
-    xdo_select_window_with_click(SCM_POINTER_VALUE(xdo), &w);
-    return wrap_xdo_window(w);
+    int ret = xdo_select_window_with_click(SCM_POINTER_VALUE(xdo), &w);
+    if (ret == XDO_SUCCESS)
+        return wrap_xdo_window(w);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_set_number_of_desktops_wrapper ( SCM xdo, SCM ndesktops)
@@ -390,8 +413,11 @@ SCM xdo_set_number_of_desktops_wrapper ( SCM xdo, SCM ndesktops)
 SCM xdo_get_number_of_desktops_wrapper ( SCM xdo)
 {
     long n;
-    xdo_get_number_of_desktops(SCM_POINTER_VALUE(xdo), &n);
-    return scm_from_long(n);
+    int ret = xdo_get_number_of_desktops(SCM_POINTER_VALUE(xdo), &n);
+    if (ret == XDO_SUCCESS)
+        return scm_from_long(n);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_set_current_desktop_wrapper ( SCM xdo, SCM desktop)
@@ -403,8 +429,11 @@ SCM xdo_set_current_desktop_wrapper ( SCM xdo, SCM desktop)
 SCM xdo_get_current_desktop_wrapper ( SCM xdo)
 {
     long n;
-    xdo_get_current_desktop(SCM_POINTER_VALUE(xdo), &n);
-    return scm_from_long(n);
+    int ret = xdo_get_current_desktop(SCM_POINTER_VALUE(xdo), &n);
+    if (ret == XDO_SUCCESS)
+        return scm_from_long(n);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_set_desktop_for_window_wrapper ( SCM xdo, SCM wid, SCM desktop)
@@ -416,23 +445,35 @@ SCM xdo_set_desktop_for_window_wrapper ( SCM xdo, SCM wid, SCM desktop)
 SCM xdo_get_desktop_for_window_wrapper ( SCM xdo, SCM wid)
 {
     long d;
+    int ret;
     assert_xdo_window(wid);
-    xdo_get_desktop_for_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), &d);
-    return scm_from_long(d);
+    ret = xdo_get_desktop_for_window(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(wid), &d);
+    if (ret == XDO_SUCCESS)
+        return scm_from_long(d);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_search_windows_wrapper ( SCM xdo,  SCM search)
 {
     Window *win_lst;
     unsigned int length, i;
+    int ret;
     SCM lst = SCM_EOL;
-    xdo_search_windows(SCM_POINTER_VALUE(xdo), unwrap_xdo_search(search), &win_lst, &length);
-    for (i = length ; i != 0 ; i--)
+    ret = xdo_search_windows(SCM_POINTER_VALUE(xdo), unwrap_xdo_search(search), &win_lst, &length);
+    if (ret == XDO_SUCCESS)
     {
-        lst = scm_cons(wrap_xdo_window(win_lst[i-1]), lst);
+        for (i = length ; i != 0 ; i--)
+        {
+            lst = scm_cons(wrap_xdo_window(win_lst[i-1]), lst);
+        }
+        free(win_lst);
+        return lst;
     }
-    free(win_lst);
-    return lst;
+    else
+    {
+        return scm_from_int(-ret);
+    }
 }
 
 SCM xdo_get_window_property_wrapper ( SCM xdo, SCM window, SCM name)
@@ -441,21 +482,29 @@ SCM xdo_get_window_property_wrapper ( SCM xdo, SCM window, SCM name)
     unsigned char *value;
     char *name_c;
     long nitems;
-    int size, i;
+    int ret, size, i;
     name_c = scm_to_locale_string(name);
-    xdo_get_window_property(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window),
-                            name_c, &value, &nitems, NULL, &size);
-    if (nitems > 0)
+    ret = xdo_get_window_property(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window),
+                                  name_c, &value, &nitems, NULL, &size);
+    if (ret == XDO_SUCCESS)
     {
-        bv = scm_c_make_bytevector((size_t)nitems*size/8);
-        for (i = 0 ; i < nitems*size/8 ; i++)
+        if (nitems > 0)
         {
-            scm_c_bytevector_set_x(bv, i, value[i]);
+            bv = scm_c_make_bytevector((size_t)nitems*size/8);
+            for (i = 0 ; i < nitems*size/8 ; i++)
+            {
+                scm_c_bytevector_set_x(bv, i, value[i]);
+            }
         }
+        free(value);
+        free(name_c);
+        return bv;
     }
-    free(value);
-    free(name_c);
-    return bv;
+    else
+    {
+        free(name_c);
+        return scm_from_int(ret);
+    }
 }
 
 SCM xdo_get_input_state_wrapper ( SCM xdo)
@@ -486,21 +535,28 @@ SCM xdo_get_symbol_map_wrapper(void)
 SCM xdo_get_active_modifiers_wrapper ( SCM xdo)
 {
     charcodemap_t *keys;
-    int i,nkeys;
+    int ret,i,nkeys;
     SCM lst = SCM_EOL;
-    xdo_get_active_modifiers(SCM_POINTER_VALUE(xdo), &keys, &nkeys);
-    for (i = 0 ; i < nkeys ; i++)
+    ret = xdo_get_active_modifiers(SCM_POINTER_VALUE(xdo), &keys, &nkeys);
+    if (ret == XDO_SUCCESS)
     {
-        lst = scm_cons(make_charcodemap(keys[i]), lst);
+        for (i = 0 ; i < nkeys ; i++)
+        {
+            lst = scm_cons(make_charcodemap(keys[i]), lst);
+        }
+        free(keys);
+        return lst;
     }
-    free(keys);
-    return lst;
+    else
+    {
+        return scm_from_int(-ret);
+    }
 }
 
 SCM xdo_clear_active_modifiers_wrapper ( SCM xdo, SCM window, SCM active_mods)
 {
     SCM head, tail;
-    int i = 0,ret=1;
+    int i = 0,ret;
     assert_xdo_window(window);
     if (scm_pair_p(active_mods))
     {
@@ -526,14 +582,15 @@ SCM xdo_clear_active_modifiers_wrapper ( SCM xdo, SCM window, SCM active_mods)
     {
         scm_throw(scm_from_locale_symbol("bad-argument"),
                   scm_from_locale_string("argument three must be an pair"));
+        return scm_from_int(-1);
     }
-    return scm_from_int(ret);
+    return scm_from_int(-ret);
 }
 
 SCM xdo_set_active_modifiers_wrapper ( SCM xdo, SCM window,  SCM active_mods)
 {
     SCM head, tail;
-    int i = 0,ret=1;
+    int i = 0,ret;
     assert_xdo_window(window);
     if (scm_pair_p(active_mods))
     {
@@ -559,15 +616,19 @@ SCM xdo_set_active_modifiers_wrapper ( SCM xdo, SCM window,  SCM active_mods)
     {
         scm_throw(scm_from_locale_symbol("bad-argument"),
                   scm_from_locale_string("argument three must be an pair"));
+        return scm_from_int(-1);
     }
-    return scm_from_int(ret);
+    return scm_from_int(-ret);
 }
 
 SCM xdo_get_desktop_viewport_wrapper ( SCM xdo)
 {
     int x,y;
-    xdo_get_desktop_viewport(SCM_POINTER_VALUE(xdo), &x, &y);
-    return scm_cons(scm_from_int(x), scm_cons(scm_from_int(y), SCM_EOL));
+    int ret = xdo_get_desktop_viewport(SCM_POINTER_VALUE(xdo), &x, &y);
+    if (ret == XDO_SUCCESS)
+        return scm_cons(scm_from_int(x), scm_cons(scm_from_int(y), SCM_EOL));
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_set_desktop_viewport_wrapper ( SCM xdo, SCM x, SCM y)
@@ -584,19 +645,30 @@ SCM xdo_kill_window_wrapper ( SCM xdo, SCM window)
 SCM xdo_find_window_client_wrapper ( SCM xdo, SCM window, SCM direction)
 {
     Window c;
+    int ret;
     int dir = (direction == SCM_UNDEFINED ? 0 : scm_to_int(direction));
     assert_xdo_window(window);
-    xdo_find_window_client(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &c, dir);
-    return wrap_xdo_window(c);
+    ret = xdo_find_window_client(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &c, dir);
+    if (ret == XDO_SUCCESS)
+        return wrap_xdo_window(c);
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_get_window_name_wrapper ( SCM xdo, SCM window)
 {
     unsigned char *name;
-    int len, type;
+    int len, type, ret;
     assert_xdo_window(window);
-    xdo_get_window_name(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &name, &len, &type);
-    return scm_cons(scm_take_locale_stringn((char *)name, len), scm_cons(scm_from_int(type), SCM_EOL));
+    ret = xdo_get_window_name(SCM_POINTER_VALUE(xdo), SCM_SMOB_DATA(window), &name, &len, &type);
+    if (ret == XDO_SUCCESS)
+    {
+        SCM res = scm_cons(scm_from_locale_stringn((char *)name, len), scm_cons(scm_from_int(type), SCM_EOL));
+        free(name);
+        return res;
+    }
+    else
+        return scm_from_int(-ret);
 }
 
 SCM xdo_disable_feature_wrapper (SCM xdo, SCM feature)
@@ -619,8 +691,15 @@ SCM xdo_has_feature_wrapper (SCM xdo, SCM feature)
 SCM xdo_get_viewport_dimensions_wrapper (SCM xdo, SCM screen)
 {
     unsigned int w,h;
-    xdo_get_viewport_dimensions(SCM_POINTER_VALUE(xdo), &w, &h, scm_to_int(screen));
-    return make_pair(scm_from_uint(w),scm_from_uint(h));
+    int ret = xdo_get_viewport_dimensions(SCM_POINTER_VALUE(xdo), &w, &h, scm_to_int(screen));
+    if (ret == XDO_SUCCESS)
+    {
+        return make_pair(scm_from_uint(w),scm_from_uint(h));
+    }
+    else
+    {
+        return scm_from_int(-ret);
+    }
 }
 
 void
@@ -743,11 +822,11 @@ init_xdo_libxdo(void *unused)
          *"lib:xdo-kill-window",
          *"lib:xdo-find-window-client",
          *"lib:xdo-get-window-name",
+         *"lib:xdo-get-viewport-dimensions",
          */
         "lib:xdo-disable-feature",
         "lib:xdo-enable-feature",
         "lib:xdo-has-feature",
-        "lib:xdo-get-viewport-dimensions",
         EXPORT_SMOB_FUNCTIONS
         NULL);
 }
