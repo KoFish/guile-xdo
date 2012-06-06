@@ -26,10 +26,10 @@ wrap_xdo_window(Window window)
     else return SCM_UNDEFINED;
 }
 
-int
+SCM
 is_xdo_window(SCM exp)
 {
-    return SCM_SMOB_PREDICATE(xdo_window_tag, exp);
+    return scm_from_bool(SCM_SMOB_PREDICATE(xdo_window_tag, exp));
 }
 
 static scm_t_bits charcodemap_tag;
