@@ -26,6 +26,7 @@
 (define-module (xdo libxdo)
                #:use-module (ice-9 optargs)
                #:use-module (ice-9 match)
+               #:use-module (rnrs bytevectors)
                #:export (new-xdo
                          lib:xdo-version
                          lib:xdo-enable-feature
@@ -81,7 +82,7 @@
                          xdo-get-symbol-map
                          ))
 
-(load-extension "./libxdo_guile.so" "scm_init_xdo_libxdo_module")
+(eval-when (eval load compile) (load-extension "libxdo_guile.so" "scm_init_xdo_libxdo_module"))
 
 (define* (new-xdo #:optional display) 
          "Creates a new xdo pointer. Display defaults to the 
@@ -310,7 +311,7 @@
 
 (define* (xdo-get-desktop-for-window xdo #:key window)
          (let* ((window (or window (xdo-get-active-window xdo)))
-                (ret (lib:get-desktop-for-window xdo window)))
+                (ret (lib:xdo-get-desktop-for-window xdo window)))
            (if (>= ret 0) ret #f)))
 
 (define* (xdo-find-window-client xdo #:key window direction)

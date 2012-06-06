@@ -756,7 +756,7 @@ init_xdo_libxdo(void *unused)
     scm_c_define_gsubr("lib:xdo-set-current-desktop", 2, 0, 0, xdo_set_current_desktop_wrapper);
     scm_c_define_gsubr("lib:xdo-get-current-desktop", 1, 0, 0, xdo_get_current_desktop_wrapper);
     scm_c_define_gsubr("lib:xdo-set-desktop-for-window", 2, 0, 0, xdo_set_desktop_for_window_wrapper);
-    scm_c_define_gsubr("lib:xdo-get-desktop-for-window", 1, 0, 0, xdo_get_desktop_for_window_wrapper);
+    scm_c_define_gsubr("lib:xdo-get-desktop-for-window", 2, 0, 0, xdo_get_desktop_for_window_wrapper);
     scm_c_define_gsubr("lib:xdo-search-windows", 2, 0, 0, xdo_search_windows_wrapper);
     scm_c_define_gsubr("lib:xdo-get-window-property", 3, 0, 0, xdo_get_window_property_wrapper);
     scm_c_define_gsubr("lib:xdo-get-input-state", 1, 0, 0, xdo_get_input_state_wrapper);
