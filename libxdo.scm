@@ -119,7 +119,7 @@
 
 (define (xdo-get-mouse-location xdo)
   (let ((ret (lib:xdo-get-mouse-location xdo)))
-    (if (mouse-location? ret) ret #f)))
+    (if (mouse-location? ret) (list (mouse-location-x ret) (mouse-location-y ret)) #f)))
 
 (define* (xdo-click xdo button #:key repeat delay window)
          (eq? 0 (lib:xdo-click-window xdo (or window (xdo-get-active-window xdo)) button repeat delay)))
