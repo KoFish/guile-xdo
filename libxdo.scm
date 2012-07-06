@@ -236,12 +236,12 @@
 (define* (xdo-get-window-location xdo #:key window)
   (let* ((window (or window (xdo-get-active-window xdo)))
          (ret (lib:xdo-get-window-location xdo window)))
-    (if (pair? ret) ret #f))) 
+    (if (pair? ret) (cons (car ret) (cadr ret)) #f))) 
 
 (define* (xdo-get-window-size xdo #:key window)
   (let* ((window (or window (xdo-get-active-window xdo)))
          (ret (lib:xdo-get-window-size xdo window)))
-    (if (pair? ret) ret #f))) 
+    (if (pair? ret) (cons (car ret) (cadr ret)) #f))) 
 
 (define (xdo-get-active-window xdo)
   (let ((ret (lib:xdo-get-active-window xdo)))
