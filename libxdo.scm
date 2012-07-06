@@ -99,6 +99,7 @@
 ;;       relative to the current position, without this the 
 ;;       fourth argument should be what sceen the position 
 ;;       should be relative too.
+;; Returning value: #f if failure otherwise #t
 (define (xdo-move-mouse xdo xy . rest)
   (let ((window (if rest (memq #:window rest) #f))
         (relative (if rest (memq #:relative rest) #f))
@@ -119,7 +120,8 @@
 
 (define (xdo-get-mouse-location xdo)
   (let ((ret (lib:xdo-get-mouse-location xdo)))
-    (if (mouse-location? ret) (cons (mouse-location-x ret) (mouse-location-y ret)) #f)))
+    (if (not (mouse-location? ret)) #f
+        (cons (mouse-location-x ret) (mouse-location-y ret)))))
 
 (define* (xdo-click xdo button #:key repeat delay window)
   (eq? 0 (lib:xdo-click-window xdo (or window (xdo-get-active-window xdo)) button repeat delay)))
