@@ -32,6 +32,7 @@
                          lib:xdo-enable-feature
                          lib:xdo-disable-feature
                          lib:xdo-has-feature
+                         xdo-window?
                          xdo-move-mouse
                          xdo-mouse-button-up
                          xdo-mouse-button-down 
